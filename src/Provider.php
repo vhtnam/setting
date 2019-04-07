@@ -39,20 +39,20 @@ class Provider extends ServiceProvider
             foreach (config('setting.override') as $config_key => $setting_key) {
                 // handle non associative override declaration
                 $config_key = $config_key ?: $setting_key;
-                
-                try {
-                    $value = setting($setting_key);
-                    
-                    if (is_null($value)) {
-                        continue;
-                    }
-                } catch (\Exception $e) {
+
+                $value = setting($setting_key);
+                if (is_null($value)) {
                     continue;
                 }
-                
+				$oldConfig = config($setting_key);
+				
+				if(is_array($oldConfig) && is_array($value) ){
+					//$value = $value + $oldConfig; 
+					$value = recursive_array_merge($oldConfig, $value);
+				}
+				
                 config([$config_key => $value]);
             }
-            
             unset($value);
         }
 
